@@ -1,6 +1,8 @@
 import requests
 import lxml.html
 import functools
+import json
+from pprint import pp
 
 urls = {
     "explore_new": "https://store.steampowered.com/explore/new/",
@@ -55,17 +57,26 @@ def get_platforms(url):
     return memo
 
 
+def scrape_steam(url):
+    memo = []
+    for i in zip(get_releases(url), get_prices(url), get_tags(url), get_platforms(url)):
+        data = {
+            "title": i[0],
+            "price": i[1],
+            "tags": i[2],
+            "platforms": i[3]
+        }
+        memo.append(data)
+    return memo
+
+
 def main():
     url = urls["explore_new"]
-    releases = get_releases(url)
-    prices = get_prices(url)
-    tags = get_tags(url)
-    platforms = get_platforms(url)
-
-    print(f"Releases: {releases[:3]}...({len(releases)} more)")
-    print(f"Prices: {prices[:3]}...({len(prices)} more)")
-    print(f"Tags: {tags[:3]}...{len(tags)} more")
-    print(f"Platforms: {platforms[:3]}...({len(platforms)} more))")
+    results = scrape_steam(url)
+    for result in results:
+        print(
+            f"Title: {result["title"]}\n- Price: {result["price"]}\n- Tags: {", ".join(result["tags"])}\n- Platforms: {", ".join(result["platforms"])}\n"
+        )
 
 
 if __name__ == "__main__":
